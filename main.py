@@ -40,31 +40,21 @@ mmscaler = MinMaxScaler()
 X_scaled = mmscaler.fit_transform(x_data)                               # Normalize database
 XTrain, XTest, yTrain, yTest, XVal, yVal = sp.splitX(X_scaled, y_data)
 
-num_examples_train = XTrain.shape[0]
-num_examples_val = XVal.shape[0]
-
-XTrain_r = XTrain.reshape(num_examples_train, 1, 12)
-XVal_r = XVal.reshape(num_examples_val, 1, 12)
 
 #  ================ Creation of Neural Network ================
 
 model = keras.Sequential()
-Conv1 = model.add(keras.layers.Conv1D(filters=10, kernel_size=60, activation='relu',
-                                      input_shape=(1, 12)))
-Conv2 = model.add(keras.layers.Conv1D(filters=10, kernel_size=60, activation='relu'))
-model.add(keras.layers.Dropout(0.5))
-model.add(keras.layers.MaxPooling1D(pool_size=3))
-model.add(keras.layers.Flatten())
-hidden_layer1 = model.add(keras.layers.Dense(100, activation='relu'))       # Capa oculta
+model.add(keras.layers.Flatten(input_shape=(12, )))
+hidden_layer1 = model.add(keras.layers.Dense(400, activation='relu'))       # Capa oculta
 Dropout = model.add(keras.layers.Dropout(0.5))
-hidden_layer2 = model.add(keras.layers.Dense(20, activation='relu'))       # Capa oculta
+hidden_layer2 = model.add(keras.layers.Dense(200, activation='relu'))       # Capa oculta
 output_layer = model.add(keras.layers.Dense(2, activation='softmax'))       # Capa de salida (Softmax p/clas exclusiva)
 model.summary()
 
 #  ================ Training and Validation ================
 
 model.compile(loss="sparse_categorical_crossentropy", optimizer="SGD", metrics=["accuracy"])   # SCC loss p/clas excl.
-history = model.fit(x=XTrain_r, y=yTrain, epochs=25, batch_size=10, validation_data=(XVal_r, yVal), verbose=2)
+history = model.fit(x=XTrain, y=yTrain, epochs=30, batch_size=10, validation_data=(XVal, yVal), verbose=2)
 
 train_loss = history.history['loss'][-1]
 val_acc = history.history['val_acc'][-1]
