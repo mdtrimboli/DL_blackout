@@ -12,5 +12,5 @@ def splitX(X, y):
     axs[0].hist(x=y_train, bins=2)
     axs[1].hist(x=y_test, bins=2)
     axs[2].hist(x=y_val, bins=2)
-    plt.show()
+    #plt.show()
     return X_train, X_test, y_train, y_test, X_val, y_val

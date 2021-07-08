@@ -1,10 +1,11 @@
 import pandas as pd
+import numpy as np
 import Split_Process as sp
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow import keras
-
+from sklearn.metrics import confusion_matrix
 
 
 # =========== Loading and Visualizing Data =============
@@ -25,7 +26,7 @@ sns.boxplot(x='tau_system', y='stabf', data=data, ax=ax[0])
 sns.boxplot(x='g_system', y='stabf', data=data, ax=ax[1])
 ax[0].set_title("Tau Data")
 ax[1].set_title("G Data")
-fig.show()
+
 
 
 # =========== Transform Label =============
@@ -45,15 +46,13 @@ XTrain, XTest, yTrain, yTest, XVal, yVal = sp.splitX(X_scaled, y_data)
 
 model = keras.Sequential()
 model.add(keras.layers.Flatten(input_shape=(12, )))
-hidden_layer1 = model.add(keras.layers.Dense(400, activation='relu'))       # Capa oculta
-Dropout = model.add(keras.layers.Dropout(0.5))
-hidden_layer2 = model.add(keras.layers.Dense(200, activation='relu'))       # Capa oculta
-output_layer = model.add(keras.layers.Dense(2, activation='softmax'))       # Capa de salida (Softmax p/clas exclusiva)
+model.add(keras.layers.Dense(300, activation='relu'))
+model.add(keras.layers.Dropout(0.5))
+model.add(keras.layers.Dense(50, activation='relu'))
+model.add(keras.layers.Dense(2, activation='softmax'))
 model.summary()
 
-#  ================ Training and Validation ================
-
-model.compile(loss="sparse_categorical_crossentropy", optimizer="SGD", metrics=["accuracy"])   # SCC loss p/clas excl.
+model.compile(loss="sparse_categorical_crossentropy", optimizer="Adam", metrics=["accuracy"])
 history = model.fit(x=XTrain, y=yTrain, epochs=30, batch_size=10, validation_data=(XVal, yVal), verbose=2)
 
 train_loss = history.history['loss'][-1]
@@ -73,3 +72,22 @@ pd.DataFrame(history.history).plot(figsize=(8, 5))
 plt.grid(True)
 plt.gca().set_ylim(0, 1)                                         # Rango de Y
 plt.show()
+
+#  ================ Prediction ==============
+
+yProb = model.predict(XTest, batch_size=10)
+evaluation = model.evaluate(XTest, yTest)
+
+yPredict = np.zeros(2000)
+
+for i in range(2000):
+    max_index_predict = np.argmax(yProb[i, :])
+    yPredict[i] = max_index_predict
+
+
+print("Evaluation Accuracy")
+print(evaluation[1])
+
+matrizConfusion = confusion_matrix(yTest, yPredict)
+print('Matriz de Confusion')
+print(matrizConfusion)
