@@ -28,7 +28,6 @@ ax[0].set_title("Tau Data")
 ax[1].set_title("G Data")
 
 
-
 # =========== Transform Label =============
 
 y_data = y_data.replace(['stable'], 1)
@@ -88,6 +87,6 @@ for i in range(2000):
 print("Evaluation Accuracy")
 print(evaluation[1])
 
-matrizConfusion = confusion_matrix(yTest, yPredict)
-print('Matriz de Confusion')
-print(matrizConfusion)
+matrixConfusion = confusion_matrix(yTest, yPredict)
+print('Confusion Matrix')
+print(matrixConfusion)
