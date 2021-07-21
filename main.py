@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import Split_Process as sp
 import matplotlib.pyplot as plt
-import seaborn as sns
+import random
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow import keras
 from sklearn.metrics import confusion_matrix
@@ -12,20 +12,17 @@ from sklearn.metrics import confusion_matrix
 
 print("Loading and Visualizing Data")
 data = pd.read_csv("Data_for_UCI_named.csv")
-print(data[:5])
+random_list = data.sample(n=5)
+print(random_list)
+# create excel writer object
+writer = pd.ExcelWriter('output.xlsx')
+# write dataframe to excel
+random_list.to_excel(writer)
+# save the excel
+writer.save()
+print('DataFrame is written successfully to Excel File.')
 x_data = data.drop(['stab', 'stabf'], axis=1)
 y_data = data.iloc[:, -1]
-
-x_data_tau = x_data.iloc[:, 0:3]
-x_data_g = x_data[["g1", "g2", "g3", "g4"]]
-
-data['tau_system'] = data['tau1'] * data['tau2'] * data['tau3'] * data['tau4']
-data['g_system'] = data['g1'] * data['g2'] * data['g3'] * data['g4']
-fig, ax = plt.subplots(1, 2)
-sns.boxplot(x='tau_system', y='stabf', data=data, ax=ax[0])
-sns.boxplot(x='g_system', y='stabf', data=data, ax=ax[1])
-ax[0].set_title("Tau Data")
-ax[1].set_title("G Data")
 
 
 # =========== Transform Label =============
@@ -38,7 +35,7 @@ y_data = y_data.replace(['unstable'], 0)
 
 mmscaler = MinMaxScaler()
 X_scaled = mmscaler.fit_transform(x_data)                               # Normalize database
-XTrain, XTest, yTrain, yTest, XVal, yVal = sp.splitX(X_scaled, y_data)
+XTrain, XTest, yTrain, yTest = sp.splitX(X_scaled, y_data)
 
 
 #  ================ Creation of Neural Network ================
@@ -52,7 +49,7 @@ model.add(keras.layers.Dense(2, activation='softmax'))
 model.summary()
 
 model.compile(loss="sparse_categorical_crossentropy", optimizer="Adam", metrics=["accuracy"])
-history = model.fit(x=XTrain, y=yTrain, epochs=30, batch_size=10, validation_data=(XVal, yVal), verbose=2)
+history = model.fit(x=XTrain, y=yTrain, epochs=30, batch_size=5, validation_data=(XTest, yTest), verbose=2)
 
 train_loss = history.history['loss'][-1]
 val_acc = history.history['val_acc'][-1]
@@ -74,12 +71,12 @@ plt.show()
 
 #  ================ Prediction ==============
 
-yProb = model.predict(XTest, batch_size=10)
+yProb = model.predict(XTest, batch_size=5)
 evaluation = model.evaluate(XTest, yTest)
 
-yPredict = np.zeros(2000)
+yPredict = np.zeros(2500)
 
-for i in range(2000):
+for i in range(2500):
     max_index_predict = np.argmax(yProb[i, :])
     yPredict[i] = max_index_predict
 
