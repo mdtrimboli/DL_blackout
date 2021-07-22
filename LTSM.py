@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import Split_Process as sp
 import matplotlib.pyplot as plt
-import random
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow import keras
 from sklearn.metrics import confusion_matrix, classification_report
@@ -41,15 +40,15 @@ model.add(keras.layers.Dropout(0.2))
 model.add(keras.layers.LSTM(120, return_sequences=True))
 model.add(keras.layers.Dropout(0.2))
 model.add(keras.layers.LSTM(120))
-model.add(keras.layers.Dense(60, activation='relu'))
+model.add(keras.layers.Dense(120, activation='relu'))
 model.add(keras.layers.Dropout(0.5))
-model.add(keras.layers.Dense(20, activation='relu'))
-model.add(keras.layers.Dense(5, activation='relu'))
+model.add(keras.layers.Dense(100, activation='relu'))
+model.add(keras.layers.Dense(50, activation='relu'))
 model.add(keras.layers.Dense(2, activation='softmax'))
 model.summary()
 
-model.compile(loss="sparse_categorical_crossentropy", optimizer="Adam", metrics=["accuracy"])
-history = model.fit(x=XTrain, y=yTrain, epochs=150, batch_size=20, validation_data=(XTest, yTest), verbose=2)
+model.compile(loss="sparse_categorical_crossentropy", optimizer="Nadam", metrics=["accuracy"])
+history = model.fit(x=XTrain, y=yTrain, epochs=150, batch_size=50, validation_data=(XTest, yTest), verbose=2)
 
 train_loss = history.history['loss'][-1]
 val_acc = history.history['val_acc'][-1]
