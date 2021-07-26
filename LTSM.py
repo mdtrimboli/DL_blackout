@@ -36,18 +36,18 @@ XTest = XTest.reshape(len(XTest), 1, XTest.shape[1])
 
 model = keras.Sequential()
 model.add(keras.layers.LSTM(120, input_shape=(XTrain.shape[1:]), return_sequences=True))
-model.add(keras.layers.Dropout(0.2))
+#model.add(keras.layers.Dropout(0.2))
 model.add(keras.layers.LSTM(120, return_sequences=True))
-model.add(keras.layers.Dropout(0.2))
+#model.add(keras.layers.Dropout(0.2))
 model.add(keras.layers.LSTM(120))
 model.add(keras.layers.Dense(120, activation='relu'))
 model.add(keras.layers.Dropout(0.5))
 model.add(keras.layers.Dense(100, activation='relu'))
-model.add(keras.layers.Dense(50, activation='relu'))
+model.add(keras.layers.Dense(5, activation='relu'))
 model.add(keras.layers.Dense(2, activation='softmax'))
 model.summary()
 
-model.compile(loss="sparse_categorical_crossentropy", optimizer="Nadam", metrics=["accuracy"])
+model.compile(loss="sparse_categorical_crossentropy", optimizer="Adam", metrics=["accuracy"])
 history = model.fit(x=XTrain, y=yTrain, epochs=150, batch_size=50, validation_data=(XTest, yTest), verbose=2)
 
 train_loss = history.history['loss'][-1]
