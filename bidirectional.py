@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import Split_Process as sp
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, Normalizer
 from tensorflow import keras
 from sklearn.metrics import confusion_matrix, classification_report
 
@@ -35,19 +35,19 @@ XTest = XTest.reshape(len(XTest), 1, XTest.shape[1])
 #  ================ Creation of Neural Network ================
 
 model = keras.Sequential()
-model.add(keras.layers.Bidirectional(keras.layers.LSTM(20, return_sequences=True), input_shape=(XTrain.shape[1:])))
-model.add(keras.layers.Bidirectional(keras.layers.LSTM(20, return_sequences=True)))
-model.add(keras.layers.Bidirectional(keras.layers.LSTM(20, return_sequences=True)))
+model.add(keras.layers.Bidirectional(keras.layers.LSTM(120, return_sequences=True), input_shape=(XTrain.shape[1:])))
+model.add(keras.layers.Bidirectional(keras.layers.LSTM(120, return_sequences=True)))
+model.add(keras.layers.Bidirectional(keras.layers.LSTM(120, return_sequences=True)))
 model.add(keras.layers.Bidirectional(keras.layers.LSTM(20)))
-model.add(keras.layers.Dense(100, activation='relu'))
+model.add(keras.layers.Dense(120, activation='relu'))
 model.add(keras.layers.Dropout(0.5))
-model.add(keras.layers.Dense(50, activation='relu'))
-model.add(keras.layers.Dropout(0.2))
+model.add(keras.layers.Dense(100, activation='relu'))
+model.add(keras.layers.Dense(5, activation='relu'))
 model.add(keras.layers.Dense(2, activation='softmax'))
 model.summary()
 
 model.compile(loss="sparse_categorical_crossentropy", optimizer="Adam", metrics=["accuracy"])
-history = model.fit(x=XTrain, y=yTrain, epochs=200, batch_size=50, validation_data=(XTest, yTest), verbose=2)
+history = model.fit(x=XTrain, y=yTrain, epochs=150, batch_size=50, validation_data=(XTest, yTest), verbose=2)
 
 train_loss = history.history['loss'][-1]
 val_acc = history.history['val_acc'][-1]

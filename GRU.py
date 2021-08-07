@@ -38,19 +38,23 @@ mmscaler = MinMaxScaler()
 X_scaled = mmscaler.fit_transform(x_data)                               # Normalize database
 XTrain, XTest, yTrain, yTest = sp.splitX(X_scaled, y_data)
 
+XTrain = XTrain.reshape(len(XTrain), 1, XTrain.shape[1])
+XTest = XTest.reshape(len(XTest), 1, XTest.shape[1])
 
 #  ================ Creation of Neural Network ================
 
 def create_model():
     model = keras.Sequential()
-    model.add(keras.layers.Flatten(input_shape=(12, ), name="Input_Layer"))
-    model.add(keras.layers.Dense(300, activation='relu', name="Hidden_1"))
+    model.add(keras.layers.GRU(120, input_shape=(XTrain.shape[1:]), return_sequences=True, name="Input_Layer"))
+    model.add(keras.layers.Dropout(0.3))
+    model.add(keras.layers.GRU(120, return_sequences=True, name="HideGRU_1"))
+    model.add(keras.layers.Dropout(0.3))
+    model.add(keras.layers.GRU(120, name="HideGRU_2"))
+    model.add(keras.layers.Dense(120, activation='relu', name="HideDense_1"))
     model.add(keras.layers.Dropout(0.5))
-    model.add(keras.layers.Dense(50, activation='relu', name="Hidden_2"))
-    model.add(keras.layers.Dropout(0.5))
-    model.add(keras.layers.Dense(20, activation='relu', name="Hidden_3"))
+    model.add(keras.layers.Dense(20, activation='relu', name="HideDense_2"))
+    model.add(keras.layers.Dense(5, activation='relu', name="HideDense_3"))
     model.add(keras.layers.Dense(2, activation='softmax', name="Output_Layer"))
-    #model.summary()
     return model
 
 
@@ -61,6 +65,8 @@ log_dir = "C:/Users/maxit/Documents/Facultad/Carrera de Doctorado - Beca/Cursos/
           + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 tensorboard_callback = keras.callbacks.TensorBoard(log_dir=log_dir)
+
+#Para activar: tensorboard --logdir logs/fit
 
 history = model.fit(x=XTrain, y=yTrain,
                     validation_split=0.15, epochs=150, batch_size=10,
@@ -84,9 +90,9 @@ print(val_loss)
 yProb = model.predict(XTest, batch_size=5)
 evaluation = model.evaluate(XTest, yTest)
 
-yPredict = np.zeros(2500)
+yPredict = np.zeros(1500)
 
-for i in range(2500):
+for i in range(1500):
     max_index_predict = np.argmax(yProb[i, :])
     yPredict[i] = max_index_predict
 

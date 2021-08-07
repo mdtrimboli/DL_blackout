@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 
 def splitX(X, y):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.15)
     fig, axs = plt.subplots(1, 2, sharey=True, tight_layout=True)
     fig.suptitle('Histograma de entrenamiento y prueba')
 
