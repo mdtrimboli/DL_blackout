@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import datetime
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import cross_val_score
-from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import confusion_matrix, accuracy_score, \
+    classification_report, precision_score, recall_score, f1_score
 from xgboost import XGBClassifier
 
 
@@ -51,7 +52,7 @@ def create_model():
 model = create_model()
 model.fit(XTrain, yTrain)
 
-scores = cross_val_score(model, XTrain, yTrain, cv=5)
+scores = cross_val_score(model, XTrain, yTrain, cv=10)
 print("Mean cross-validation score: %.2f" % scores.mean())
 
 yTr_pred = model.predict(XTrain)
@@ -71,3 +72,17 @@ matrixConfusion = confusion_matrix(yTest, yPred)
 print('Confusion Matrix')
 print(matrixConfusion)
 
+matrix = classification_report(yTest, yPred, labels=[1, 0])
+print('Classification report : \n', matrix)
+
+precision_model = precision_score(yTest, yPred)
+print('Precision')
+print(precision_model)
+
+recall_model = recall_score(yTest, yPred)
+print('Recall')
+print(recall_model)
+
+f1_model = f1_score(yTest, yPred)
+print('F1 Score')
+print(recall_model)

@@ -4,8 +4,9 @@ import Split_Process as sp
 import matplotlib.pyplot as plt
 import datetime
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import KFold
 from tensorflow import keras
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, precision_score, f1_score, recall_score
 from tensorboard import main as tb
 
 
@@ -69,26 +70,23 @@ tensorboard_callback = keras.callbacks.TensorBoard(log_dir=log_dir)
 
 #Para activar: tensorboard --logdir logs/fit
 
-history = model.fit(x=XTrain, y=yTrain,
-                    validation_split=0.15, epochs=150, batch_size=10,
-                    verbose=0, callbacks=[tensorboard_callback])
+cross_val_round = 1
 
-train_loss = history.history['loss'][-1]
-val_acc = history.history['val_accuracy'][-1]
-train_acc = history.history['accuracy'][-1]
-val_loss = history.history['val_loss'][-1]
-print("Training Accuracy")
-print(train_acc)
-print("Validation Accuracy")
-print(val_acc)
-print("Training Loss")
-print(train_loss)
-print("Validation Loss")
-print(val_loss)
+for train_index, val_index in KFold(10, shuffle=True, random_state=10).split(XTrain):
+    x_train, y_train = XTrain[train_index], yTrain.iloc[train_index]
+    x_val, y_val = XTrain[val_index], yTrain.iloc[val_index]
+    history = model.fit(x_train, y_train, epochs=150, callbacks=[tensorboard_callback])
+    print(f'\nModel evaluation - Round {cross_val_round}: {model.evaluate(x_val, y_val)}\n')
+    cross_val_round += 1
+
+#history = model.fit(x=XTrain, y=yTrain, validation_split=0.15, epochs=150, batch_size=10, verbose=0, callbacks=[tensorboard_callback])
+
+# val_acc = history.history['val_accuracy'][-1]
+
 
 #  ================ Prediction ==============
 
-yProb = model.predict(XTest, batch_size=5)
+yProb = model.predict(XTest)
 evaluation = model.evaluate(XTest, yTest)
 
 yPredict = np.zeros(1500)
@@ -104,4 +102,16 @@ print(evaluation[1])
 matrixConfusion = confusion_matrix(yTest, yPredict)
 print('Confusion Matrix')
 print(matrixConfusion)
+
+precision_model = precision_score(yTest, yPredict)
+print('Precision')
+print(precision_model)
+
+recall_model = recall_score(yTest, yPredict)
+print('Recall')
+print(recall_model)
+
+f1_model = f1_score(yTest, yPredict)
+print('F1 Score')
+print(recall_model)
 
